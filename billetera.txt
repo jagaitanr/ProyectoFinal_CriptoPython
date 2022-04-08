@@ -1,0 +1,1 @@
+[{"id":1, "name": "Bitcoin", "symbol": "BTC", "cantidad": 10.5},{"id":2, "name": "Ethereum", "symbol": "ETH", "cantidad": 58.4} ]

@@ -1,6 +1,7 @@
 import requests
 _ENDPOINT = "https://api.binance.com"
 def _url(api):
+    print (api)
     return _ENDPOINT+api
 
 def get_price(cripto):
