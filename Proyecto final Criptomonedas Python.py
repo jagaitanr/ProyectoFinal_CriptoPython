@@ -75,28 +75,37 @@ def escribirArchivo(nombre, cantidad, codigo):
     try:
         fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
         fileW.close()
+        print("en el try")
     except: #si el archivo no se puede abrir es porque no ha sido creado, entonces se procede a crear e inicializar una lista de monedas
         fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
-        fileW.write("{'symbol':'"+nombre+"','cantidad':0,'codigo':'NULL'}")
+        primerDiccionario={'symbol':nombre,'cantidad':str(cantidad),'codigo':codigo}
+        monedas=[]
+        monedas[0]=primerDiccionario
+        fileW.write(monedas)
         fileW.close()
-    fileString=open("I:/NEXTU/PYTHON/inventarioMonedas.txt",'r')
-    lista=fileString.read()
+        print("en el except")
+    #fileString=open("I:/NEXTU/PYTHON/inventarioMonedas.txt",'r')
+    """lista=fileString.read()
     lista2=lista.split()
-    for i in lista2:
+    for i in range (len(lista2)-1):
         print(i)
     fileString.close()
     
     a=len(lista2)
     print (str(a))
 
-    for linea in range (0, a):
-        lista2[linea]=ast.literal_eval(lista2[linea])
-        if lista2[0]["symbol"]==nombre:
+    for linea in range (0,a):
+        lista2[linea]=ast.literal_eval(lista2[linea])"""
+    for i in range (0, len(monedas)):    
+        if monedas[i]['symbol']==nombre:
             print ("la criptonomeda ya esta")
         else:
-            lista2.append('{"symbol":'+nombre+', "cantidad": '+str(cantidad)+ ', "codigo": '+ codigo+'}')
+            diccionarioaAñadir={'symbol':nombre,'cantidad':str(cantidad),'codigo':codigo}
+            print(diccionarioaAñadir)
+            #lista2.append({'symbol':'"+nombre+"','cantidad':"+str(cantidad)+",'codigo':'"+ codigo+"'})
+            monedas.append(diccionarioaAñadir)
             fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
-            fileW.write(str(lista2))
+            fileW.write(monedas)
             fileW.close()
     #file.write(str(monedas[1]['quote']['USD']['price']))
     #print(monedas['quotes']['USD']['price'])
@@ -148,6 +157,7 @@ if opcion == "1":
             else :
                 escribirArchivo(nombreCripto, cantidadRecibida, codigoRemitente)
                 validacicionCodigo=True
+                break
 
 if opcion == "2":
     nombreCripto = input ("ingrese nombre de la criptomoneda a enviar: ")
