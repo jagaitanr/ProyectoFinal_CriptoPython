@@ -1,0 +1,1 @@
+[{'symbol': 'ETH', 'cantidad': 200.0, 'codigo': 'EFADF'}, {'symbol': 'BTC', 'cantidad': 350.0, 'codigo': 'FASDF'}, {'symbol': 'USDT', 'cantidad': 100.0, 'codigo': 'BB'}, {'symbol': 'DNA', 'cantidad': 800.0, 'codigo': 'ASDFAS'}, {'symbol': 'MASS', 'cantidad': 0.0, 'codigo': 'FADSF'}, {'symbol': 'CUT', 'cantidad': 700.0, 'codigo': 'ERS'}]
