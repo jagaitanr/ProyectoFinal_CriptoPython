@@ -4,6 +4,7 @@ import json
 import pprint
 import ast #biblioteca para poder convertir string en diccionario
 import pickle
+from tabulate import tabulate
 
 def reescribirArchivo():
     file = open("I:/NEXTU/PYTHON/billetera.txt","r")
@@ -28,10 +29,11 @@ parametros = {
 }
 _url="https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 jsonCoinMarket=requests.get(_url, params=parametros, headers=headers, ).json()
+#print (jsonCoinMarket["data"])
 monedas_list=[]
 for cripto in jsonCoinMarket["data"]:
     monedas_list.append(cripto["symbol"])
-print (monedas_list)
+#print (monedas_list)
 
 """def esmoneda(cripto):
     return cripto in monedas"""
@@ -275,6 +277,26 @@ if opcion == "3":
             break
         else:
             print("esta moneda no existe,  intentelo de nuevo o digite salir")
+
+if opcion=="4":
+    print("dentro de opción4 ")
+    monedas3=[]
+    temp={}
+    fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+    monedas2=eval(fileW.read())
+    fileW.close()
+    monedas3=monedas2.copy()
+    for i in range (0, len(monedas3)):
+        monedas = jsonCoinMarket['data']
+        id=extraerIdentificador(monedas3[i]['symbol'])
+        monedas3[i]['valor']=str(round((monedas[id]['quote']['USD']['price']*monedas3[i]['cantidad']),2)) #agrega un nuevo key/valor a cada diccionario del arreglo monedas3
+        monedas3[i]['nombre']=monedas[id]['name']
+    print(tabulate(monedas3, headers='keys'))
+    totalUSD=0
+    for list in monedas3:
+        totalUSD=totalUSD+float(list['valor'])
+    print ("saldo total: "+ str(round(totalUSD,2)) + " USD")        
+
 else:
     pass    
 

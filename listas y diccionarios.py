@@ -1,3 +1,4 @@
+from tabulate import tabulate
 lista=[]
 dict1={'symbol':'BTC', 'cantidad':500}
 dict2={'symbol':'ETH', 'cantidad':450}
@@ -23,3 +24,10 @@ print("valor actual: ")
 print(lista2[3]['cantidad'])
 lista2[3]['cantidad']=lista2[3]['cantidad']+100.5
 print(lista2[3]['cantidad'])
+
+rios1 = [['Almanzora', 105],
+         ['Guadiaro', 79],
+         ['Guadalhorce', 154],
+         ['Guadalmedina', 51.5]]
+        
+print(tabulate(rios1))
