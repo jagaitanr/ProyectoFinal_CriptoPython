@@ -69,11 +69,11 @@ class Criptomoneda(object):
         else:
             return self.saldo
 
-def extraerIdentificador (nombreCripto, listaMonedas): #extraer el ID para conocer precio de la moneda
-    for i in range (0, len(listaMonedas)):
-        if nombreCripto==listaMonedas[i] :
+def extraerIdentificador (nombreCripto): #extraer el ID para conocer precio de la moneda
+    for i in range (0, len(monedas_list)):
+        if nombreCripto==monedas_list[i] :
             id = i
-            print (id)
+            #print (id)
             break
     return id #id de la moneda
 
@@ -81,6 +81,7 @@ def validacionCriptoFondo(nombreCripto, valorEnviar):
     fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
     monedas2=eval(fileW.read())
     fileW.close()
+    monedaExistente=False # es True hasta que la moneda esté en la base de datos de coinmarket
     monedaPresente=False # hasta que no se demuestre que pertenece a la lista
     saldoSuficiente=False # hasta que se verifique que tiene suficiente saldo
     for i in range (len(monedas2)):
@@ -90,15 +91,14 @@ def validacionCriptoFondo(nombreCripto, valorEnviar):
                 saldoSuficiente=True
     return ([monedaPresente, saldoSuficiente]) #retorna arreglo verdadero o Falso tanto en  la moneda como en el saldo
 
-def validacionFondo(nombreCripto, cantidad):
-    fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+
     
 
 def escribirArchivo(nombre, cantidad, codigo):
     monedas = jsonCoinMarket['data']
     monedas2=[]
     print("El precio de " + nombre +" es: ")
-    id=extraerIdentificador(nombre, monedas_list)
+    id=extraerIdentificador(nombre)
 
     print(monedas[id]['quote']['USD']['price'])
     try:
@@ -248,8 +248,33 @@ if opcion == "2":
 
 
 if opcion == "3":
-    nombreCripto = input ("ingrese nombre de la criptomoneda para mostrar su balance: ")
+    criptomonedaExiste = False
+    while criptomonedaExiste == False:
+        nombreCripto = input ("ingrese símbolo de la criptomoneda para mostrar su balance o 'salir' para abandonar la billetera : ")
+        if nombreCripto in monedas_list:
+            criptomonedaExiste = True
+            validacion=validacionCriptoFondo(nombreCripto, 0)
+            if validacion[0]==False:
+                print ("ésta moneda no hace parte de su billetera,  inténtelo de nuevo")
+                criptomonedaExiste = False #para que vuelva a hacer la validación
+            else:
+                id=extraerIdentificador(nombreCripto)
+                monedas = jsonCoinMarket['data']
+                print ("el nombre de la criptomoneda es: "+ monedas[id]['name'] )
+                fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+                monedas2=eval(fileW.read())
+                fileW.close()
+                for i in range (0, len(monedas2)):
+                    if monedas2[i]['symbol']==nombreCripto:
+                        id2=i
+                print ("la cantidad de " + monedas[id]['name'] + " que posee en su billetera es: "+str(monedas2[id2]['cantidad']))
+                print ("el precio en USD de " + monedas[id]['name']+" es de "+ str(monedas[id]['quote']['USD']['price']) + " para un total en USD de " + str(monedas[id]['quote']['USD']['price']*monedas2[id2]['cantidad']) )
 
+        elif nombreCripto == "salir":
+            opcion=6
+            break
+        else:
+            print("esta moneda no existe,  intentelo de nuevo o digite salir")
 else:
     pass    
 
