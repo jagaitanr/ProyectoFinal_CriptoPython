@@ -80,17 +80,21 @@ def extraerIdentificador (nombreCripto): #extraer el ID para conocer precio de l
     return id #id de la moneda
 
 def validacionCriptoFondo(nombreCripto, valorEnviar):
-    fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
-    monedas2=eval(fileW.read())
-    fileW.close()
-    monedaExistente=False # es True hasta que la moneda esté en la base de datos de coinmarket
-    monedaPresente=False # hasta que no se demuestre que pertenece a la lista
-    saldoSuficiente=False # hasta que se verifique que tiene suficiente saldo
-    for i in range (len(monedas2)):
-        if monedas2[i]['symbol']==nombreCripto:
-            monedaPresente=True
-            if monedas2[i]['cantidad']>=valorEnviar:
-                saldoSuficiente=True
+    try:
+        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+        monedas2=eval(fileW.read())
+        fileW.close()
+        monedaExistente=False # es True hasta que la moneda esté en la base de datos de coinmarket
+        monedaPresente=False # hasta que no se demuestre que pertenece a la lista
+        saldoSuficiente=False # hasta que se verifique que tiene suficiente saldo
+        for i in range (len(monedas2)):
+            if monedas2[i]['symbol']==nombreCripto:
+                monedaPresente=True
+                if monedas2[i]['cantidad']>=valorEnviar:
+                    saldoSuficiente=True
+    except:
+        print("No existe el archivo,  revise la existencia del mismo o verifique que ya tenga Criptomonedas para poder enviar")
+        return([False, False])
     return ([monedaPresente, saldoSuficiente]) #retorna arreglo verdadero o Falso tanto en  la moneda como en el saldo
 
 
@@ -108,7 +112,8 @@ def escribirArchivo(nombre, cantidad, codigo):
         monedas2=eval(fileW.read())
         #monedas2=fileW.read()
         fileW.close()
-        print("en el try")
+
+        
     except: #si el archivo no se puede abrir es porque no ha sido creado, entonces se procede a crear e inicializar una lista de monedas
         fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
         primerDiccionario={'symbol':nombre,'cantidad':0,'codigo':codigo}
@@ -116,23 +121,44 @@ def escribirArchivo(nombre, cantidad, codigo):
         fileW.write(str(monedas2))
         fileW.close()
         print("en el except")
+
     monedaPresente=False # inicializa variable para agregarla o para sumar su saldo
     for i in range (0, len(monedas2)):
-        print("monedas2:")
-        print (monedas2[i])
-        
         if monedas2[i]['symbol']==nombre:
                 print ("la criptonomeda ya esta")
                 posicion = i
                 monedaPresente=True
     if (monedaPresente):
+        id=extraerIdentificador(nombre) # traer el ID del data de coinmarket
+        fecha=monedas[id]['quote']['USD']['last_updated']
+        valor=monedas[id]['quote']['USD']['price']
+        if (cantidad>=0):
+            transaccion='recibido'
+            monto=cantidad*valor
+        else:
+            transaccion='enviado'
+            monto=-cantidad*valor # como la cantidad viene negativa se debe dejar positiva para el monto
+        
+        agregarTransaccion(fecha, nombre, transaccion, codigo,  cantidad, monto )
         monedas2[posicion]['cantidad']=monedas2[posicion]['cantidad']+cantidad
         print("nuevo valor: "+ str(monedas2[posicion]['cantidad']))
         fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
         fileW.write(str(monedas2))
         fileW.close()
         
-    else:    
+    else:
+        id=extraerIdentificador(nombre) # traer el ID del data de coinmarket
+        fecha=monedas[id]['quote']['USD']['last_updated']
+        valor=monedas[id]['quote']['USD']['price']
+        if (cantidad>=0):
+            transaccion='recibido'
+            monto=round(cantidad*valor,2)
+        else:
+            transaccion='enviado'
+            monto=round(-cantidad*valor,2) # como la cantidad viene negativa se debe dejar positiva para el monto
+        
+        agregarTransaccion(fecha, nombre, transaccion, codigo,  cantidad, monto )
+        
         diccionarioaAñadir={'symbol':nombre,'cantidad':cantidad,'codigo':codigo}
         #print(diccionarioaAñadir)
         monedas2.append(diccionarioaAñadir)
@@ -147,6 +173,30 @@ def escribirArchivo(nombre, cantidad, codigo):
     #file.write(str(monedas[1]['quote']['USD']['price']))
     #print(monedas['quotes']['USD']['price'])
     return (monedas2[posicion]['cantidad'])
+
+def agregarTransaccion(fecha,symbol, tipoTransaccion, codigo,  cantidad, monto):
+    try: 
+        transacciones=[]
+        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","r")
+        transacciones=eval(fileW2.read())
+        print(transacciones)
+        fileW2.close()
+        diccionarioaAñadir2={'Fecha y hora':fecha,'Symbol':symbol,  'Tipo': tipoTransaccion, 'codigo (API-key)': codigo, 'cantidad':cantidad, 'valor en ese momento':monto}
+        transacciones.append(diccionarioaAñadir2)
+        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","w")
+        fileW2.write(str(transacciones))
+        fileW2.close()
+        
+        
+    except: #si el archivo aun no existe se debe crear
+        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","w")
+        primerDiccionario2={'Fecha y hora ':fecha,'Symbol':symbol,  'Tipo': tipoTransaccion, 'codigo (API-key)': codigo, 'cantidad':cantidad, 'valor en ese momento':monto}
+        transacciones=[]
+        transacciones.append(primerDiccionario2)
+        fileW2.write(str(transacciones))
+        fileW2.close()
+        print("en el except")
+    return
 
 
 print ("Billetera de Criptomonedas tipo DESKTOP \n Menú:")
@@ -282,20 +332,34 @@ if opcion=="4":
     print("dentro de opción4 ")
     monedas3=[]
     temp={}
-    fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
-    monedas2=eval(fileW.read())
-    fileW.close()
-    monedas3=monedas2.copy()
-    for i in range (0, len(monedas3)):
-        monedas = jsonCoinMarket['data']
-        id=extraerIdentificador(monedas3[i]['symbol'])
-        monedas3[i]['valor']=str(round((monedas[id]['quote']['USD']['price']*monedas3[i]['cantidad']),2)) #agrega un nuevo key/valor a cada diccionario del arreglo monedas3
-        monedas3[i]['nombre']=monedas[id]['name']
-    print(tabulate(monedas3, headers='keys'))
-    totalUSD=0
-    for list in monedas3:
-        totalUSD=totalUSD+float(list['valor'])
-    print ("saldo total: "+ str(round(totalUSD,2)) + " USD")        
+    try:
+        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+        monedas2=eval(fileW.read())
+        fileW.close()
+        monedas3=monedas2.copy()
+        for i in range (0, len(monedas3)):
+            monedas = jsonCoinMarket['data']
+            id=extraerIdentificador(monedas3[i]['symbol'])
+            monedas3[i]['valor']=str(round((monedas[id]['quote']['USD']['price']*monedas3[i]['cantidad']),2)) #agrega un nuevo key/valor a cada diccionario del arreglo monedas3
+            monedas3[i]['nombre']=monedas[id]['name']
+        print(tabulate(monedas3, headers='keys'))
+        totalUSD=0
+        for list in monedas3:
+            totalUSD=totalUSD+float(list['valor'])
+        print ("saldo total: "+ str(round(totalUSD,2)) + " USD")        
+    except:
+        print("error al abrir el archivo, puede que lo hayan  borrado o que aún no se haya creado, tiene que recibir una moneda para crear el archivo")
+    
+
+if opcion=='5':
+    try:
+        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","r")
+        transacciones=eval(fileW2.read())
+        fileW2.close()
+        print(tabulate(transacciones, 'keys'))
+
+    except:
+        print("el archivo no ha sido creado, debe realizar mínimo una transacción")
 
 else:
     pass    
