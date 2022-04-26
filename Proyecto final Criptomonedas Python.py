@@ -25,8 +25,8 @@ monedas_list=[]
 for cripto in jsonCoinMarket["data"]:
     monedas_list.append(cripto["symbol"])
 #print (monedas_list)
-
-
+ubicacionArchivo1="I:/NEXTU/PYTHON/inventarioMonedas.txt" #coloque acá la ubicación y nombre del archivo para inventario
+ubicacionArchivo2="I:/NEXTU/PYTHON/historicoTransacciones.txt" #coloque acá la ubicación y nombre del archivo para el histórico de las transacciones
 class Criptomoneda(object):
     def __init__(self, nombre,  saldo, cotizacion):
         self.nombre = nombre
@@ -93,13 +93,13 @@ def escribirArchivo(nombre, cantidad, codigo): # en esta función se reescribe e
     id=extraerIdentificador(nombre)
     print(monedas[id]['quote']['USD']['price'])
     try:
-        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+        fileW=open(ubicacionArchivo1,"r")
         monedas2=eval(fileW.read())
         fileW.close()
 
         
     except: #si el archivo no se puede abrir es porque no ha sido creado, entonces se procede a crear e inicializar una lista de monedas
-        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
+        fileW=open(ubicacionArchivo1,"w")
         primerDiccionario={'symbol':nombre,'cantidad':0,'codigo':codigo}
         monedas2.append(primerDiccionario)
         fileW.write(str(monedas2))
@@ -126,7 +126,7 @@ def escribirArchivo(nombre, cantidad, codigo): # en esta función se reescribe e
         agregarTransaccion(fecha, nombre, transaccion, codigo,  cantidad, monto )
         monedas2[posicion]['cantidad']=monedas2[posicion]['cantidad']+cantidad
         #print("nuevo valor: "+ str(monedas2[posicion]['cantidad']))
-        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
+        fileW=open(ubicacionArchivo1,"w")
         fileW.write(str(monedas2))
         fileW.close()
         
@@ -149,7 +149,7 @@ def escribirArchivo(nombre, cantidad, codigo): # en esta función se reescribe e
         posicion=len(monedas2)-1 # esta sería la posición en la última lista del arreglo
         #print ("monedas2 actualizado:")
         #print(monedas2)
-        fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","w")
+        fileW=open(ubicacionArchivo1,"w")
         fileW.write(str(monedas2))
         fileW.close()
 
@@ -161,19 +161,19 @@ def escribirArchivo(nombre, cantidad, codigo): # en esta función se reescribe e
 def agregarTransaccion(fecha,symbol, tipoTransaccion, codigo,  cantidad, monto): #función para agregar la transacción
     try: 
         transacciones=[]
-        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","r")
+        fileW2=open(ubicacionArchivo2,"r")
         transacciones=eval(fileW2.read())
         #print(transacciones)
         fileW2.close()
         diccionarioaAñadir2={'Fecha y hora':fecha,'Symbol':symbol,  'Tipo': tipoTransaccion, 'codigo (API-key)': codigo, 'cantidad':cantidad, 'valor en ese momento':monto}
         transacciones.append(diccionarioaAñadir2)
-        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","w")
+        fileW2=open(ubicacionArchivo2,"w")
         fileW2.write(str(transacciones))
         fileW2.close()
         
         
     except: #si el archivo aun no existe se debe crear
-        fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","w")
+        fileW2=open(ubicacionArchivo2,"w")
         primerDiccionario2={'Fecha y hora ':fecha,'Symbol':symbol,  'Tipo': tipoTransaccion, 'codigo (API-key)': codigo, 'cantidad':cantidad, 'valor en ese momento':monto}
         transacciones=[]
         transacciones.append(primerDiccionario2)
@@ -304,7 +304,7 @@ def menu2(opcion):
                     id=extraerIdentificador(nombreCripto)
                     monedas = jsonCoinMarket['data']
                     print ("\nEl nombre de la criptomoneda es: "+ monedas[id]['name'] )
-                    fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+                    fileW=open(ubicacionArchivo1,"r")
                     monedas2=eval(fileW.read())
                     fileW.close()
                     for i in range (0, len(monedas2)):
@@ -324,7 +324,7 @@ def menu2(opcion):
         monedas3=[]
         temp={}
         try:
-            fileW=open("I:/NEXTU/PYTHON/inventarioMonedas.txt","r")
+            fileW=open(ubicacionArchivo1,"r")
             monedas2=eval(fileW.read())
             fileW.close()
             monedas3=monedas2.copy()
@@ -345,7 +345,7 @@ def menu2(opcion):
 
     if opcion=='5':
         try:
-            fileW2=open("I:/NEXTU/PYTHON/historicoTransacciones.txt","r")
+            fileW2=open(ubicacionArchivo2,"r")
             transacciones=eval(fileW2.read())
             fileW2.close()
             print(tabulate(transacciones, 'keys'))
